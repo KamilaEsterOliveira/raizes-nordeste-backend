@@ -4,7 +4,7 @@ Este repositório contém a entrega técnica do MVP estruturado para a rede de l
 
 ---
 
-##  Como Executar e Validar a API (Item 8.1)
+##  Como Executar e Validar a API 
 
 Esta suite foi desenvolvida em Java (Spring Boot) e utiliza o **SQLite** como motor de banco de dados persistente em arquivo local, garantindo consistência transacional sem volatidades de resets de memória.
 
@@ -21,7 +21,7 @@ Antes de rodar a aplicação, certifique-se de configurar as variáveis de ambie
 
 ---
 
-## Ordem Sugerida para Execução dos Testes (Item 8.1)
+## Ordem Sugerida para Execução dos Testes 
 
 Para o correto acompanhamento dos estados da API e transição do ciclo de vida do pedido, execute as requisições na ordem abaixo:
 
@@ -33,7 +33,7 @@ Para o correto acompanhamento dos estados da API e transição do ciclo de vida 
 
 ---
 
-##  Segurança e LGPD Aplicada (Item 15)
+##  Segurança e LGPD Aplicada 
 * **Controle de Acesso:** Rotas de relatórios da matriz gerencial exigem privilégios de `ADMIN`. Clientes comuns que tentarem o acesso receberão um HTTP Status `403 Forbidden` (Testado no cenário `T03`).
 * **Privacidade de Dados:** Senhas de usuários e funcionários são criptografadas antes do armazenamento físico através de algoritmos de hash seguro. Dados pessoais sensíveis nunca são expostos em payloads públicos de Response.
 
