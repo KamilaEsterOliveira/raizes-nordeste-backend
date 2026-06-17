@@ -1,0 +1,178 @@
+{
+	"info": {
+		"name": "Raizes do Nordeste - Suite de Testes Completa",
+		"description": "Coleção oficial organizada em pastas temáticas conforme o Item 8.1 e 8.2 para validação do MVP.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "T01 - Login Válido (Sucesso)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"cliente@exemplo.com\",\n  \"senha\": \"Senha@123\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "http://localhost:8080/api/v1/auth/login" }
+					}
+				}
+			]
+		},
+		{
+			"name": "Pedidos",
+			"item": [
+				{
+					"name": "T06 - Criar Pedido Válido (Sucesso)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer jwt_token_simulado_cliente" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"canalPedido\": \"TOTEM\",\n  \"unidadeId\": 2,\n  \"itens\": [{\"produtoId\": 101, \"quantidade\": 1}]\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "http://localhost:8080/api/v1/pedidos" }
+					}
+				}
+			]
+		},
+		{
+			"name": "Pagamento",
+			"item": [
+				{
+					"name": "T09 - Simular Pagamento Mock (Sucesso)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer jwt_token_simulado_cliente" }
+						],
+						"url": { "raw": "http://localhost:8080/api/v1/pagamentos/mock-sucesso" }
+					}
+				},
+				{
+					"name": "T10 - Simular Pagamento Mock Recusado (Falha)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer jwt_token_simulado_cliente" }
+						],
+						"url": { "raw": "http://localhost:8080/api/v1/pagamentos/mock-falha" }
+					}
+				}
+			]
+		},
+		{
+			"name": "Erros e Regras",
+			"item": [
+				{
+					"name": "T02 - Criar Pedido Sem Token (Erro 401)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"canalPedido\": \"TOTEM\",\n  \"unidadeId\": 2,\n  \"itens\": [{\"produtoId\": 101, \"quantidade\": 1}]\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "http://localhost:8080/api/v1/pedidos" }
+					}
+				},
+				{
+					"name": "T03 - Acesso Administrativo Violado (Erro 403)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer jwt_token_simulado_cliente" }
+						],
+						"url": { "raw": "http://localhost:8080/api/v1/matriz/relatorios" }
+					}
+				},
+				{
+					"name": "T04 - Criar Pedido sem Canal (Erro 422)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer jwt_token_simulado_cliente" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"unidadeId\": 2,\n  \"itens\": [{\"produtoId\": 101, \"quantidade\": 1}]\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "http://localhost:8080/api/v1/pedidos" }
+					}
+				},
+				{
+					"name": "T05 - Login com Email Invalido (Erro 400)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"email_invalido_sem_arroba\",\n  \"senha\": \"Senha@123\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "http://localhost:8080/api/v1/auth/login" }
+					}
+				},
+				{
+					"name": "T07 - Pedido com Unidade Inexistente (Erro 404)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer jwt_token_simulado_cliente" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"canalPedido\": \"APP\",\n  \"unidadeId\": 999,\n  \"itens\": [{\"produtoId\": 101, \"quantidade\": 1}]\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "http://localhost:8080/api/v1/pedidos" }
+					}
+				},
+				{
+					"name": "T08 - Criar Pedido com Estoque Insuficiente (Erro 409)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer jwt_token_simulado_cliente" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"canalPedido\": \"APP\",\n  \"unidadeId\": 2,\n  \"itens\": [{\"produtoId\": 101, \"quantidade\": 5}]\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "http://localhost:8080/api/v1/pedidos" }
+					}
+				}
+			]
+		},
+		{
+			"name": "Logs",
+			"item": [
+				{
+					"name": "T11 - Validar Geracao de Logs de Auditoria",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer jwt_token_simulado_cliente" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"canalPedido\": \"TOTEM\",\n  \"unidadeId\": 2,\n  \"itens\": [{\"produtoId\": 101, \"quantidade\": 1}]\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "http://localhost:8080/api/v1/pedidos" }
+					}
+				}
+			]
+		}
+	]
+}
