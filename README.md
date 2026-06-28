@@ -29,7 +29,7 @@ Para o correto acompanhamento dos estados da API e transição do ciclo de vida 
 2. **Pasta Pedidos -> T06 (Criar Pedido Válido):** Cria um pedido via canal `TOTEM` consumindo 1 item do estoque. O pedido nascerá com status `AGUARDANDO_PAGAMENTO`.
 3. **Pasta Pagamento -> T09 (Simular Pagamento Sucesso):** Altera o status do pedido criado anteriormente de forma síncrona para `PAGO` no banco de dados.
 4. **Pasta Erros e Regras -> T08 (Criar Pedido com Estoque Insuficiente):** Tente forçar a compra de 5 cuscuz na Unidade 2. O sistema barrará a operação disparando um HTTP Status Code `409 Conflict`.
-5. **Pasta Logs -> T11 (Validar Geração de Logs de Auditoria):** Execute a rota para conferir no terminal a impressão dos rastreadores automáticos sob a tag `[AUDITORIA]`.
+5. **Pasta Erros e Regras -> T04 (Criar Pedido sem Canal):** Remova o campo `canalPedido` do JSON enviado. O sistema rejeitará a operação retornando um HTTP Status Code `422 Unprocessable Entity` (conforme validado na documentação interativa).
 
 ---
 
@@ -39,6 +39,6 @@ Para o correto acompanhamento dos estados da API e transição do ciclo de vida 
 
 ---
 
-## 📐 Links Oficiais do Projeto (Item 10)
+## Links Oficiais do Projeto
 * **Repositório Público GitHub:** `https://github.com/KamilaEsterOliveira/raizes-nordeste-backend`
-* **Contrato Open API/Swagger Interativo:** `http://localhost:8080/api/v1/swagger-ui.html` (ou via Swagger Editor Online utilizando o arquivo `swagger.yaml` de documentação oficial).
+* **Contrato Open API/Swagger Interativo:** Pode ser visualizado importando o arquivo do Swagger que está na raiz deste repositório diretamente no [Swagger Editor Online](https://editor.swagger.io/).
