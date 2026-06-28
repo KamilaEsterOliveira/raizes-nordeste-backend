@@ -1,0 +1,255 @@
+openapi: 3.0.3
+info:
+  title: API Raízes do Nordeste — Sistema Multicanal de Vendas
+  description: Contrato oficial da API do MVP da rede de lanchonetes. Inclui autenticação por perfis, controle de estoque por unidade, persistência em SQLite, auditoria de logs e multicanalidade obrigatória.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Servidor de Desenvolvimento Local
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Autenticação de Usuários
+      description: Realiza o login e retorna o Token JWT simulado com o perfil do usuário.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - senha
+              properties:
+                email:
+                  type: string
+                  example: cliente@exemplo.com
+                senha:
+                  type: string
+                  example: "Senha@123"
+      responses:
+        '200':
+          description: Autenticação bem-sucedida. Retorna o token e a role.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    example: "jwt_token_simulado_cliente"
+                  role:
+                    type: string
+                    example: "CLIENTE"
+        '400':
+          description: Erro de Validação (Formato de e-mail inválido - T05)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroPadrao'
+
+  /pedidos:
+    post:
+      tags:
+        - Pedidos
+      summary: Criar Novo Pedido (Fluxo Crítico)
+      description: Cria um pedido validando o estoque local da unidade e exigindo o canal de origem.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - canalPedido
+                - unidadeId
+                - produtoId
+                - quantidade
+              properties:
+                canalPedido:
+                  type: string
+                  enum: [APP, TOTEM, BALCAO, PICKUP, WEB]
+                  example: TOTEM
+                unidadeId:
+                  type: integer
+                  example: 2
+                produtoId:
+                  type: integer
+                  example: 101
+                quantidade:
+                  type: integer
+                  example: 1
+      responses:
+        '201':
+          description: Pedido registrado com sucesso em estado inicial 'AGUARDANDO_PAGAMENTO' (T06).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pedidoId:
+                    type: integer
+                    example: 9001
+                  status:
+                    type: string
+                    example: "AGUARDANDO_PAGAMENTO"
+                  canalOrigem:
+                    type: string
+                    example: "TOTEM"
+                  mensagem:
+                    type: string
+                    example: "Pedido gerado com sucesso!"
+        '401':
+          description: Não autenticado (Token ausente ou inválido - T02)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroPadrao'
+        '409':
+          description: Conflito de Regra de Negócio (Estoque Insuficiente - T08)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroPadrao'
+        '422':
+          description: Entidade não Processável (Campo canalPedido ausente - T04)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroPadrao'
+
+    get:
+      tags:
+        - Pedidos
+      summary: Consultar/Filtrar Pedidos por Canal
+      description: Permite a listagem e filtragem operacional por canal com paginação.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: canalPedido
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [APP, TOTEM, BALCAO, PICKUP, WEB]
+          example: TOTEM
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          example: 1
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          example: 10
+      responses:
+        '200':
+          description: Lista paginada retornada com sucesso.
+        '401':
+          description: Não autenticado.
+
+  /matriz/relatorios:
+    get:
+      tags:
+        - Administrativo
+      summary: Consulta de Relatórios Consolidados de Vendas
+      description: Rota restrita para testar a autorização por perfil (Exigência RBAC).
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Relatório gerado com sucesso.
+        '403':
+          description: Acesso Proibido (Perfil sem permissão suficiente - T03)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroPadrao'
+
+  /pagamentos/mock-sucesso:
+    post:
+      tags:
+        - Pagamentos (Mock)
+      summary: Simular Pagamento Aprovado
+      description: Dispara o gatilho simulado que altera o status do pedido para PAGO.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Pagamento processado e status atualizado para PAGO (T09).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pedidoId:
+                    type: integer
+                    example: 9001
+                  statusFinal:
+                    type: string
+                    example: "PAGO"
+                  transacaoId:
+                    type: string
+                    example: "mock_trx_777999"
+
+  /pagamentos/mock-falha:
+    post:
+      tags:
+        - Pagamentos (Mock)
+      summary: Simular Pagamento Recusado
+      description: Dispara o gatilho simulado de recusa, alterando o status para PAGAMENTO_RECUSADO.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Simulação processada. Retorna o status de recusa coerente (T10).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pedidoId:
+                    type: integer
+                    example: 9001
+                  statusFinal:
+                    type: string
+                    example: "PAGAMENTO_RECUSADO"
+                  motivoRecusa:
+                    type: string
+                    example: "Saldo insuficiente ou transação negada pela operadora do cartão."
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErroPadrao:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          example: "2026-06-28T12:00:00Z"
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: "Bad Request"
+        message:
+          type: string
+          example: "Mensagem detalhada sobre o erro capturado."
+        path:
+          type: string
+          example: "/api/v1/pedidos"
